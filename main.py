@@ -20,8 +20,12 @@ class ScatterplotApp:
         offsetX = round(windowWidth / 2)
         offsetY = round(windowHeight / 2)
 
-        #scaleX = max(points_data.points.X) - min(points_data.points.X) / offsetX
-        #scaleY = max(points_data.points.X) - min(points_data.points.Y) / offsetY
+        rangeX = round(max(abs(points_data.min_X), abs(points_data.max_X)))
+        rangeY = round(max(abs(points_data.min_Y), abs(points_data.max_Y)))
+
+        scaleX = offsetX / rangeX
+        scaleY = offsetY / rangeY
+
 
         self.canvas = tk.Canvas(root, width=windowWidth, height=windowHeight, bg="white")
         self.canvas.pack()
@@ -119,10 +123,21 @@ class Points:
     def __init__(self, data):
         self.points = []
         self._load_data(data)
+        self.min_X = float('inf')
+        self.max_X = float('-inf')
+        self.min_Y = float('inf')
+        self.max_Y = float('-inf')
 
     def _load_data(self, csv_file):
         data = pd.read_csv(csv_file, header=None)
         self.points = [Point(x, y, point_type) for x, y, point_type in zip(data.iloc[:, 0], data.iloc[:, 1], data.iloc[:, 2])]
+
+        for point in self.points:
+            self.max_X = max(self.max_X, point.x)
+            self.min_Y = min(self.min_Y, point.y)
+            self.max_Y = max(self.max_Y, point.y)
+            self.min_X = min(self.min_X, point.x)
+
 
     def __iter__(self):
         return iter(self.points)
