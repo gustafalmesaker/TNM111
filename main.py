@@ -15,13 +15,15 @@ class ScatterplotApp:
         windowWidth = 500
         windowHeight = 500
 
-        points_data = Points('data2.csv')
+        
 
         offsetX = round(windowWidth / 2)
         offsetY = round(windowHeight / 2)
-
+        points_data = Points('data1.csv')
+        print(points_data)
         rangeX = round(max(abs(points_data.min_X), abs(points_data.max_X)))
         rangeY = round(max(abs(points_data.min_Y), abs(points_data.max_Y)))
+
 
         scaleX = offsetX / rangeX
         scaleY = offsetY / rangeY
@@ -133,10 +135,11 @@ class Points:
         self.points = [Point(x, y, point_type) for x, y, point_type in zip(data.iloc[:, 0], data.iloc[:, 1], data.iloc[:, 2])]
 
         for point in self.points:
+            self.min_X = min(self.min_X, point.x)
             self.max_X = max(self.max_X, point.x)
             self.min_Y = min(self.min_Y, point.y)
             self.max_Y = max(self.max_Y, point.y)
-            self.min_X = min(self.min_X, point.x)
+            
 
 
     def __iter__(self):
