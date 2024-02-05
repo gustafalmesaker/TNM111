@@ -1,8 +1,7 @@
 import tkinter as tk
 import pandas as pd
-import math
-import colorsys
 import numpy as np
+import math
 
 
 class ScatterplotApp:
@@ -10,36 +9,62 @@ class ScatterplotApp:
         self.root = root
         self.root.title("Interactive Scatterplot")
 
-        global offsetX, offsetY, points_data, windowWidth, windowHeight, isMoved
+        global offsetX, offsetY, points_data, windowWidth, windowHeight, isMoved, isHighlighted, scaleX, scaleY
         isMoved = False
+        isHighlighted = False
         windowWidth = 500
         windowHeight = 500
 
-        points_data = Points('data1.csv')
+        points_data = Points('data2.csv')
 
-        offsetX = -1
-        offsetY = -1
-        if offsetX == -1 and offsetY == -1:
-            offsetX = round(windowWidth / 2)
-            offsetY = round(windowHeight / 2)
+        offsetX = round(windowWidth / 2)
+        offsetY = round(windowHeight / 2)
+
+        #scaleX = max(points_data.points.X) - min(points_data.points.X) / offsetX
+        #scaleY = max(points_data.points.X) - min(points_data.points.Y) / offsetY
 
         self.canvas = tk.Canvas(root, width=windowWidth, height=windowHeight, bg="white")
         self.canvas.pack()
         self.draw_scatterplot()
 
         self.canvas.bind("<Button-1>", self.on_canvas_left_click)
-
+        self.canvas.bind("<Button-3>", self.on_canvas_right_click)
 
     def draw_scatterplot(self):
         self.canvas.delete("all")  # Clear canvas
         # Draw axes
-        self.canvas.create_line(round(windowWidth / 2), 0, round(windowWidth / 2), windowHeight, fill="black")  # X-axis (centered)
-        self.canvas.create_line(0, round(windowHeight / 2), windowWidth, round(windowHeight / 2), fill="black")  # Y-axis (centered)
+        midX = round(windowWidth / 2)
+        midY = round(windowHeight / 2)
+        self.canvas.create_line(midX, 0, midX, windowHeight, fill="black")  # X-axis (centered)
+        self.canvas.create_line(0, midY, windowWidth, midY, fill="black")  # Y-axis (centered)
         for point in points_data:
-            self.canvas.create_oval(point.x - 5  + offsetX, point.y - 5 + offsetY, point.x + 5 + offsetX, point.y + 5 + offsetY)
+            fillColor = 'black'
+            #x = (point.x + offsetX) * scaleX
+            #x = (point.Y + offsetY) * scaleY
+            if point.highlight:
+                fillColor = 'yellow'
+            elif point.x + offsetX < midX and point.y + offsetY < midY:
+                fillColor = 'red'
+            elif point.x + offsetX < midX:
+                fillColor = 'orange'
+            elif point.y + offsetY < midY:
+                fillColor = 'green'
+            else:
+                fillColor = 'blue'
+            #create types
+            if point.point_type == 'a' or point.point_type == 'foo':
+                self.canvas.create_oval(point.x - 5  + offsetX, point.y - 5 + offsetY, point.x + 5 + offsetX, point.y + 5 + offsetY, fill = fillColor)
+            elif point.point_type == 'b' or point.point_type == 'bar':
+                x, y = point.x + offsetX, point.y + offsetY
+                size = 5
+                self.canvas.create_polygon(x, y - size, x - size, y + size, x + size, y - size, x - size, y - size, x + size, y + size, x, y - 2 * size, fill=fillColor, outline='black')               
+                
+            elif point.point_type == 'c' or point.point_type == 'baz':
+            #self.canvas.create_oval(point.x - 5  + offsetX, point.y - 5 + offsetY, point.x + 5 + offsetX, point.y + 5 + offsetY, fill = fillColor)
+                self.canvas.create_rectangle(point.x - 5 + offsetX, point.y - 5 + offsetY, point.x + 5 + offsetX, point.y + 5 + offsetY, fill=fillColor)
     
     def on_canvas_left_click(self, event):
-        global offsetX, offsetY, windowHeight, windowWidth, isMoved
+        global offsetX, offsetY, windowHeight, windowWidth, isMoved, isHighlighted
 
         x, y = event.x, event.y
 
@@ -53,7 +78,33 @@ class ScatterplotApp:
             isMoved = True
         self.draw_scatterplot()
 
+    def on_canvas_right_click(self, event):
+        x, y = event.x, event.y
+        x = round(x - offsetX)
+        y = round(y - offsetY)
+        global isHighlighted 
 
+        if isHighlighted:
+            for point in points_data:
+                if point.highlight:
+                    point.highlight = False
+            isHighlighted = False
+
+        else:
+            for point in points_data:
+                point.distance = math.sqrt((x - point.x)**2 + (y - point.y)**2)
+            
+            points_data.points.sort(key = lambda x: x.distance)
+
+            i = 0
+            for point in points_data:
+                point.highlight = True
+                i = i+1
+                if i > 6:
+                    break
+            isHighlighted = True
+
+        self.draw_scatterplot()
 
 #---------classes for point and points-----------#
 class Point:
@@ -61,6 +112,8 @@ class Point:
         self.x = x
         self.y = y
         self.point_type = point_type
+        self.highlight = False
+        self.distance = -1 #sort on distance
 
 class Points:
     def __init__(self, data):
