@@ -10,20 +10,21 @@ class ScatterplotApp:
         self.root.title("Interactive Scatterplot")
 
         global offsetX, offsetY, points_data, windowWidth, windowHeight, isMoved, isHighlighted, scaleX, scaleY
+        
         isMoved = False
         isHighlighted = False
         windowWidth = 500
         windowHeight = 500
-
+        
         
 
         offsetX = round(windowWidth / 2)
         offsetY = round(windowHeight / 2)
-        points_data = Points('data1.csv')
-        print(points_data)
+        
+        points_data = Points('data1.csv') #här dör den
+        
         rangeX = round(max(abs(points_data.min_X), abs(points_data.max_X)))
         rangeY = round(max(abs(points_data.min_Y), abs(points_data.max_Y)))
-
 
         scaleX = offsetX / rangeX
         scaleY = offsetY / rangeY
@@ -59,7 +60,7 @@ class ScatterplotApp:
                 fillColor = 'blue'
             #create types
             if point.point_type == 'a' or point.point_type == 'foo':
-                self.canvas.create_oval(point.x - 5  + offsetX, point.y - 5 + offsetY, point.x + 5 + offsetX, point.y + 5 + offsetY, fill = fillColor)
+                self.canvas.create_oval(scaleX*point.x - 5  + offsetX, scaleY*point.y - 5 + offsetY, point.x + 5 + offsetX, point.y + 5 + offsetY, fill = fillColor)
             elif point.point_type == 'b' or point.point_type == 'bar':
                 x, y = point.x + offsetX, point.y + offsetY
                 size = 5
@@ -119,16 +120,16 @@ class Point:
         self.y = y
         self.point_type = point_type
         self.highlight = False
-        self.distance = -1 #sort on distance
+        self.distance = -1
 
 class Points:
     def __init__(self, data):
         self.points = []
-        self._load_data(data)
         self.min_X = float('inf')
         self.max_X = float('-inf')
         self.min_Y = float('inf')
         self.max_Y = float('-inf')
+        self._load_data(data)
 
     def _load_data(self, csv_file):
         data = pd.read_csv(csv_file, header=None)
@@ -140,7 +141,6 @@ class Points:
             self.min_Y = min(self.min_Y, point.y)
             self.max_Y = max(self.max_Y, point.y)
             
-
 
     def __iter__(self):
         return iter(self.points)
