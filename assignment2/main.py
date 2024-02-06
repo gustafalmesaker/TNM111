@@ -1,8 +1,7 @@
 import tkinter as tk
 import pandas as pd
-import numpy as np
 import math
-
+import numpy as np
 
 class ScatterplotApp:
     def __init__(self, root):
@@ -19,7 +18,7 @@ class ScatterplotApp:
         offsetX = round(windowWidth / 2)
         offsetY = round(windowHeight / 2)
         
-        points_data = Points('data2.csv')
+        points_data = Points('data1.csv')
         for point in points_data: #reverse the y-axis
             point.y = -point.y
         
@@ -28,6 +27,7 @@ class ScatterplotApp:
 
         scaleX = offsetX / rangeX
         scaleY = offsetY / rangeY
+
         
         self.canvas = tk.Canvas(root, width=windowWidth, height=windowHeight, bg="white")
         self.canvas.pack()
@@ -73,16 +73,16 @@ class ScatterplotApp:
         # Draw X-axis ticks and values
         x_tick_step = 5
         for i in range(-rangeX, rangeX + 1, x_tick_step):
-            x_tick = midX + i * (windowWidth / (2 * rangeX)*scaleX)
+            x_tick = midX + (i * (windowWidth / (2 * rangeX)))*scaleX
             self.canvas.create_line(x_tick, midY - 5, x_tick, midY + 5, fill="black")  # Tick marks
-            self.canvas.create_text(x_tick, midY + 10, text=str(i), anchor="n")  # Tick values
+            self.canvas.create_text(x_tick, midY + 10, text=str(int(i*scaleX)), anchor="n")  # Tick values
 
         # Draw Y-axis ticks and values
             y_tick_step = 5
         for i in range(-rangeY, rangeY + 1, y_tick_step):
-            y_tick = midY - i * (windowHeight / (2 * rangeY)*scaleY)
+            y_tick = midY - (i * (windowHeight / (2 * rangeY)))*scaleY
             self.canvas.create_line(midX - 5, y_tick, midX + 5, y_tick, fill="black")  # Tick marks
-            self.canvas.create_text(midX - 10, y_tick, text=str(i), anchor="e")  # Tick values
+            self.canvas.create_text(midX - 10, y_tick, text=str(int(i*scaleY)), anchor="e")  # Tick values
 
         # Add legends to the axes
         legend_offset = 20  # Adjust the offset as needed
@@ -129,27 +129,28 @@ class ScatterplotApp:
 
     def on_canvas_right_click(self, event):
         x, y = event.x, event.y
-        x = round(x - offsetX)
-        y = round(y - offsetY)
+        x = x - offsetX
+        y = y - offsetY
         global isHighlighted 
 
         if isHighlighted:
             for point in points_data:
                 if point.highlight:
                     point.highlight = False
+                    point.distance = 0
             isHighlighted = False
         else:
             for point in points_data:
-                point.distance = math.sqrt(scaleX*(x - point.x)**2 + scaleY*(y - point.y)**2)
-            
-            points_data.points.sort(key = lambda x: x.distance)
+                #point.distance = math.sqrt((point.x - x)**2 + (point.y - y)**2)
+                p1 = np.array((point.x , point.y))
+                p0 = np.array((x , y))
+                point.distance = np.linalg.norm(p0 - p1)
 
-            i = 0
-            for point in points_data:
+            points_data.points.sort(key = lambda x: x.distance)
+   
+            for i, point in enumerate(points_data):
                 point.highlight = True
-                i = i+1
-                if i > 6:
-                    break
+                if i > 4: break
             isHighlighted = True
 
         self.draw_scatterplot()
@@ -183,7 +184,6 @@ class Points:
             self.min_Y = min(self.min_Y, point.y)
             self.max_Y = max(self.max_Y, point.y)
             
-
     def __iter__(self):
         return iter(self.points)
 
