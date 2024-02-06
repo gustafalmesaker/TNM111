@@ -37,7 +37,6 @@ class ScatterplotApp:
         self.canvas.bind("<Button-3>", self.on_canvas_right_click)
 
 
-
     def draw_scatterplot(self):
         self.canvas.delete("all")  # Clear canvas
         # Draw axes
@@ -91,7 +90,6 @@ class ScatterplotApp:
         self.canvas.create_text(windowWidth - legend_offset, midY + 10, text="X-axis", anchor="e", font=("Helvetica", 10, "bold"))  # X-axis legend all the way to the right
 
     
-        ##################
         for point in points_data:
             fillColor = 'black'
             if point.highlight:
