@@ -46,6 +46,14 @@ function focusPlusContext(data) {
     /**
      * Task 1 - Parse date with timeParse to year-month-day
      */
+    const { timeParse } = require('date-fns');
+
+    const dateString = '2024-02-07';
+    const parseDate = timeParse('yyyy-MM-dd');
+    const parsedDate = parseDate(dateString);
+
+    console.log(parsedDate);
+
 
     /**
      * Task 2 - Define scales and axes for scatterplot
