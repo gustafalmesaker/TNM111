@@ -23,7 +23,7 @@ function focusPlusContext(data) {
      * After that, append the two g tags we will be using for drawing the focus plus context graphs
      */
     var svg = d3.select("#scatterplot").append("svg")
-        .attr("postion", "relative")
+        .attr("position", "relative")
         .attr("width", "100%")
         .attr("height", height + margin.top + margin.bottom);
 
@@ -83,7 +83,7 @@ function focusPlusContext(data) {
      * Task 5 - Set the axes scales, both for focus and context.
      */
     xScale.domain([minDate, maxDate]);
-    yScale.domain([minMag, maxMag]); //byta plats?
+    yScale.domain([maxMag, minMag]); //byta plats?
     navXScale.domain([minDate, maxDate]);
     navYScale.domain([minMag, maxMag]);
 
@@ -131,7 +131,7 @@ function focusPlusContext(data) {
       * plot(points,nr,nr) try to use different numbers for the scaling.
       */
         let points = new Points();
-        points.plot(small_points, 100 , 2);
+        points.plot(small_points, 2 , 2);
 
     //<---------------------------------------------------------------------------------------------------->
 
@@ -180,7 +180,7 @@ function focusPlusContext(data) {
         .data(data.features)
         .enter()
         .append("circle")
-        .append("class","dot")
+        .attr("class","dot")
         .attr("style","opacity: 0.9")
         .filter(function (d) { return d.properties.EQ_PRIMARY != null })
         .attr("cx", function (d) {
@@ -214,6 +214,7 @@ function focusPlusContext(data) {
             /**
              * Task 13 - Update information in the "tooltip" by calling the tooltip function.
              */
+            points.tooltip(d);
 
 
             //Rescale the dots onhover
