@@ -131,7 +131,7 @@ function focusPlusContext(data) {
       * plot(points,nr,nr) try to use different numbers for the scaling.
       */
         let points = new Points();
-        points.plot(small_points, 2 , 2);
+        points.plot(small_points, 100, 2);
 
     //<---------------------------------------------------------------------------------------------------->
 
@@ -181,20 +181,19 @@ function focusPlusContext(data) {
         .enter()
         .append("circle")
         .attr("class","dot")
-        .attr("style","opacity: 0.9")
         .filter(function (d) { return d.properties.EQ_PRIMARY != null })
         .attr("cx", function (d) {
             return xScale(parseDate(d.properties.Date));
         })
         .attr("cy", function (d) {
             return yScale(d.properties.EQ_PRIMARY);
-        });
+        }).attr("style","opacity: 0.9");
 
     /**
      * Task 12 - Call plot function
      * plot(points,nr,nr) no need to send any integers!
      */
-    points.plot(selected_dots, 1, 2);
+    points.plot(selected_dots, 1, 1);
 
     
     

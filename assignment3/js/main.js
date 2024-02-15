@@ -16,5 +16,4 @@ d3.json("./data/ethqk.geojson", function (data) {
     world_map = new worldMap(data);
     //Working with the focus+context
     focus_plus_context = new focusPlusContext(data);
-
 })
