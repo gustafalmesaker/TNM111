@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="libs/bootstrap/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
     <title>Star Wars Interactions</title>
 </head>
 
@@ -40,12 +41,12 @@
                 <div class="dropdown">
                     <button class="btn btn-primary dropdown-toggle" type="button" id="menu" data-toggle="dropdown" style="width: 100px; height: 30px;">
                         <span class="caret"></span></button>
-                        <ul class="dropdown-menu text-center">
+                        <ul class="dropdown-menu text-center" id="characterMenu">
                             <li>
-                                <p>Jar Jar</p>
+                                <a href="#" class="character-link" data-character="Jar Jar">Jar Jar</a>
                             </li>
                             <li>
-                                <p>Anakin</p>
+                                <a href="#" class="character-link" data-character="Anakin">Anakin</a>
                             </li>
                         </ul>
                 </div>
@@ -53,8 +54,8 @@
             <div class="col-sm-4">
                 <h3>Character name</h3>
                 <div class="row">
-                    <p>Links: n</p>
-                    <p>Screentime: n</p>
+                    <p>Links: <span id="linksCount">n</span></p>
+                    <p>Screentime: <span id="screenTime">n</span></p>
                 </div>
             </div>
         </div>
@@ -67,12 +68,15 @@
       </div>
 
 </body>
-<script type=text/javascript src="libs/jquery/jquery.min.js"></script>
-<script type=text/javascript src=libs/bootstrap/js/bootstrap.min.js></script>
+<script type="text/javascript" src="libs/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="libs/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="libs/d3/d3.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.4.0/leaflet-src.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Link to your main.js file -->
+<script src="main.js"></script>
 
 </html>
