@@ -34,12 +34,16 @@ function display(svg, nodes, links) {
     var simulation = d3.forceSimulation(nodes)
         .force("charge", d3.forceManyBody().strength(-500))
         .force("link", d3.forceLink(links).id(function(d) { return d.index; }).distance(100))
-        .force("center", d3.forceCenter(width / 2, height / 2))  
+        .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("x", d3.forceX().strength(0.1).x(width / 2)) // Add force to keep nodes within x boundaries
+        .force("y", d3.forceY().strength(0.1).y(height / 2)) // Add force to keep nodes within y boundaries  
         .on("tick", ticked);
 
         
     function ticked() {
         node.attr("transform", function(d) {
+            d.x = Math.max(10, Math.min(width - 10, d.x)); // Ensure x is within the boundaries
+            d.y = Math.max(10, Math.min(height - 10, d.y)); // Ensure y is within the boundaries
             return "translate(" + d.x + "," + d.y + ")";
         });
 
