@@ -23,7 +23,8 @@ function display(svg, nodes, links) {
     var node = svg.selectAll(".node")
         .data(nodes)
         .enter().append("g")
-        .attr("class", "node");
+        .attr("class", "node")
+        .on("click", selectedNode); //gör selectedNode klickbar
 
     // Append circles for nodes
     var circles = node.append("circle")
@@ -62,6 +63,17 @@ function display(svg, nodes, links) {
         text.filter(function(n) {
             return connectedNodes.includes(n) || n === d;
         }).style("display", "block");
+    }
+
+    function selectedNode(event, d) { //sus, måste ändra
+        d3.selectAll("circle").attr('stroke', '#999').attr('stroke-width', 0);
+        d3.selectAll('line').attr('stroke-width', 1);
+        d3.select(this).attr('stroke', 'red').attr('stroke-width', 2);
+        d3.selectAll('line').filter(link => link.source === d || link.target === d)
+            .attr('stroke-opacity', '0.7')
+            .attr('stroke-width', 2.5);
+        console.log(d.name);
+        console.log(d.value);
     }
 
     // Function to handle mouseout event on nodes
