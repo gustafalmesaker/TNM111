@@ -13,58 +13,41 @@
 </head>
 
 <body>
-
-    <div class="jumbotron text-center">
-        <h1>Star Wars Interactions</h1>
-        <h3>Interactions between the character will be visualized in the graphs below.</h3>
-    </div>
-
     <div class="container">
         <div class="row">
             <div class="col-sm-4">
-                <h3>Movie</h3>
+                <h3>Movies</h3>
                 <div class="dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" style="width: 100px; height: 30px;">
-                        <span class="caret"></span></button>
-                    <ul class="dropdown-menu text-center">
-                        <li>
-                            <p>star wars 1</p>
-                        </li>
-                        <li>
-                            <p>star wars 2</p>
-                        </li>
-                    </ul>
+                    <select id="film-selector">
+                        <option class="" value="ep1">Episode 1</option>
+                        <option value="ep2">Episode 2</option>
+                        <option value="ep3">Episode 3</option>
+                        <option value="ep4">Episode 4</option>
+                        <option value="ep5">Episode 5</option>
+                        <option value="ep6">Episode 6</option>
+                        <option value="full">Full Series</option>
+                    </select>
                 </div>
             </div>
             <div class="col-sm-4">
-                <h3>Character</h3>
+                <h3>Characters</h3>
                 <div class="dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" id="menu" data-toggle="dropdown" style="width: 100px; height: 30px;">
-                        <span class="caret"></span></button>
-                        <ul class="dropdown-menu text-center" id="characterMenu">
-                            <li>
-                                <a href="#" class="character-link" data-character="Jar Jar">Jar Jar</a>
-                            </li>
-                            <li>
-                                <a href="#" class="character-link" data-character="Anakin">Anakin</a>
-                            </li>
-                        </ul>
-                </div>
+                    <select id="character-selector">
+                        
+                    </select>
             </div>
             <div class="col-sm-4">
                 <h3>Character name</h3>
                 <div class="row">
-                    <p>Links: <span id="linksCount">n</span></p>
-                    <p>Screentime: <span id="screenTime">n</span></p>
+
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row text-center">
-        <div class="col-sm-4" style="background-color: blueviolet" >hej</div>
+    <div class="row">
+        <div class="col-sm-8"><svg id="graph" width="800" height="800"></svg></div>
         <div class="col-sm-4"></div>
-        <div class="col-sm-4" style="background-color: blueviolet;" >san</div>
       </div>
 
 </body>

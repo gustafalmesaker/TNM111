@@ -8,8 +8,9 @@ function display(svg, nodes, links) {
         .data(links)
         .enter().append("line")
         .attr("class", "link")
-        .attr("stroke", "lightgray") // Set the stroke color of the links
-        .attr("stroke-width", 2); // Set the width of the links
+        .attr("stroke", "blue") // Set the stroke color of the links
+        .attr("stroke-width", 2)
+        .attr("stroke-opacity", 0.4); // Set the width of the links
 
     // Use a force simulation to position the nodes
     var simulation = d3.forceSimulation(nodes)
@@ -25,16 +26,65 @@ function display(svg, nodes, links) {
         .attr("class", "node");
 
     // Append circles for nodes
-    node.append("circle")
+    var circles = node.append("circle")
         .attr("r", 10)
-        .attr("fill", function (d) { return d.colour; });
+        .attr("fill", function (d) { return d.colour; })
+        .attr("fill-opacity", 0.5); // Set the opacity of the nodes
 
     // Append text elements for node names
-    node.append("text")
+    var text = node.append("text")
         .text(function(d) { return d.name + ":" + d.value; })
         .attr("dx", 12) // Adjust position relative to the circle
         .attr("dy", 4) // Adjust position relative to the circle
-        .attr("fill", "black"); // Set the color of the text
+        .attr("fill", "black") // Set the color of the text
+        .style("display", "none"); // Hide text initially
+
+    // Function to handle mouseover event on nodes
+    function handleMouseOver(d, i) {
+        // Highlight the hovered circle
+        d3.select(this).attr("stroke", "black").attr("stroke-width", 2);
+        // Highlight the links connected to the hovered circle
+
+        link.filter(function(l) {
+            return l.source === d || l.target === d;
+        }).attr("stroke", "red")
+        .attr("stroke-width", 4);
+        // Highlight the connected circles and show their names
+        var connectedNodes = link.filter(function(l) {
+            return l.source === d || l.target === d;
+        }).data().map(function(l) {
+            return l.source === d ? l.target : l.source;
+        });
+        circles.filter(function(c) {
+            return connectedNodes.includes(c) || c === d;
+        }).attr("fill", "red");
+        text.filter(function(n) {
+            return connectedNodes.includes(n) || n === d;
+        }).style("display", "block");
+    }
+
+    // Function to handle mouseout event on nodes
+    function handleMouseOut(d, i) {
+        // Reset the outline of the hovered circle
+        d3.select(this).attr("stroke", "none");
+        // Reset the fill color of the hovered circle
+        d3.select(this).attr("fill", function(d) {
+            return d.colour;
+        });
+        // Reset the stroke color of the links
+        link.attr("stroke", "blue")
+        .attr("stroke-width", 2);
+        // Reset the fill color of connected circles
+        circles.attr("fill", function(d) {
+            return d.colour;
+        });
+        // Hide the text
+        text.style("display", "none");
+    }
+
+    // Add event listeners to nodes
+    circles.on("mouseover", handleMouseOver)
+        .on("mouseout", handleMouseOut);
 
     function ticked() {
         // Ensure nodes stay within the bounds of the SVG container
@@ -55,26 +105,105 @@ function display(svg, nodes, links) {
 }
 
 // Fetch JSON data
-async function getJSON() {
-    const ep1 = await fetch("starwars-interactions/starwars-episode-1-interactions-allCharacters.json");
-    const data = await ep1.json();
+async function getJSON(film) {
+    let url;
+    switch (film) {
+        case "ep1":
+            url = "starwars-interactions/starwars-episode-1-interactions-allCharacters.json";
+            break;
+        case "ep2":
+            url = "starwars-interactions/starwars-episode-2-interactions-allCharacters.json";
+            break;
+        case "ep3":
+            url = "starwars-interactions/starwars-episode-3-interactions-allCharacters.json";
+            break;
+        case "ep4":
+            url = "starwars-interactions/starwars-episode-4-interactions-allCharacters.json";
+            break;
+        case "ep5":            
+            url = "starwars-interactions/starwars-episode-5-interactions-allCharacters.json";
+            break;
+        case "ep6":
+            url = "starwars-interactions/starwars-episode-6-interactions-allCharacters.json";
+            break;
+        case "full":
+            url = "starwars-interactions/starwars-full-interactions-allCharacters.json";
+            break;
+        default:
+            return null;
+    }
+    const response = await fetch(url);
+    const data = await response.json();
     return data;
 }
 
+// Function to get corresponding values for targets based on a source node
+function getTargetValues(sourceNode, links) {
+    const targetValues = {};
+    links.forEach(link => {
+        if (link.source === sourceNode) {
+            const targetNode = link.target;
+            targetValues[targetNode] = link.value;
+        }
+    });
+    return targetValues;
+}
+
+
+
 // Main function
 async function run() {
-    var data = await getJSON();
-    var nodes = data.nodes;
-    var links = data.links;
+    const filmSelector = document.getElementById("film-selector");
+    const characterSelector = document.getElementById("character-selector");
+    const graph = d3.select("#graph"); // Initialize or re-select the SVG element
 
-    // Adjusted size of SVG container to ensure nodes are visible
-    var svg = d3.select("body").append("svg")
-        .attr("width", window.innerWidth)
-        .attr("height", window.innerHeight)
-        .classed("svg-container1", true);
+    // Event listener for film selection change
+    filmSelector.addEventListener("change", async () => {
+        const selectedFilm = filmSelector.value;
+        const data = await getJSON(selectedFilm);
+        const characters = extractCharacterNames(data.nodes); // Extract character names from the data
+        populateDropdown(characterSelector, characters); // Populate the character dropdown with names
+        if (!graph.empty()) {
+            graph.selectAll("*").remove(); // Clear previous visualization
+            display(graph, data.nodes, data.links); // Display the graph with new data
+        } else {
+            console.error("SVG element not found!!");
+        }
+    });
 
-    // Call the display function for the first SVG element
-    display(svg, nodes, links);
+    // Load default data (Episode 1)
+    const defaultData = await getJSON("ep1");
+    const characters = extractCharacterNames(defaultData.nodes);
+    populateDropdown(characterSelector, characters); // Populate the character dropdown with names initially
+    display(graph, defaultData.nodes, defaultData.links); // Display the default graph
+
+    // Function to extract unique character names from nodes
+    function extractCharacterNames(nodes) {
+        const characterSet = new Set();
+        nodes.forEach(node => {
+            characterSet.add(node.name); // Assuming each node has a "name" attribute
+        });
+        return Array.from(characterSet); // Convert set to array
+    }
+
+    // Function to populate dropdown with character names
+    function populateDropdown(dropdown, characters) {
+        // Clear existing options
+        dropdown.innerHTML = "";
+        
+        // Add default option
+        const defaultOption = document.createElement("option");
+        defaultOption.text = "Select a character";
+        dropdown.add(defaultOption);
+        
+        // Add options for each character
+        characters.forEach(character => {
+            const option = document.createElement("option");
+            option.value = character;
+            option.text = character;
+            dropdown.add(option);
+        });
+    }
 }
 
 run();
