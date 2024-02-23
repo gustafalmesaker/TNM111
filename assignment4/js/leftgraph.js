@@ -30,7 +30,7 @@ function display(svg, nodes, links) {
 
     // Use a force simulation to position the nodes
     var simulation = d3.forceSimulation(nodes)
-        .force("charge", d3.forceManyBody().strength(-500))
+        .force("charge", d3.forceManyBody().strength(-100))
         .force("link", d3.forceLink(links).id(function(d) { return d.index; }).distance(10))
         .force("center", d3.forceCenter(width / 2, height / 2))
         .on("tick", ticked);
@@ -39,7 +39,8 @@ function display(svg, nodes, links) {
     var node = svg.selectAll(".node")
         .data(nodes)
         .enter().append("g")
-        .attr("class", "node");
+        .attr("class", "node")
+        .on("click", clickedNode);
 
     // Append circles for nodes
     var circles = node.append("circle")
@@ -54,8 +55,44 @@ function display(svg, nodes, links) {
         .attr("dy", 4) // Adjust position relative to the circle
         .attr("fill", "black") // Set the color of the text
         .style("display", "none"); // Hide text initially
+        
 
-    // Function to handle mouseover event on nodes
+function clickedNode(d, i) {
+    // Highlight the clicked circle
+    d3.select(this).select("circle")
+        .attr("fill", "green")
+        .attr("stroke", "black")
+        .attr("stroke-width", 2);
+
+    // Highlight the links connected to the clicked circle
+    link.filter(function(l) {
+        return l.source === d || l.target === d;
+    }).select(".link")
+    .attr("stroke", "green")
+    .attr("stroke-width", 4);
+
+    // Show text for links connected to the clicked node
+    link.filter(function(l) {
+        return (l.source === d || l.target === d) && l.source !== l.target;
+    }).select(".link-text")
+    .style("display", "block");
+
+    // Highlight the connected circles and show their names
+    var connectedNodes = link.filter(function(l) {
+        return l.source === d || l.target === d;
+    }).data().map(function(l) {
+        return l.source === d ? l.target : l.source;
+    });
+    circles.filter(function(c) {
+        return connectedNodes.includes(c) || c === d;
+    }).attr("fill", "green");
+    text.filter(function(n) {
+        return connectedNodes.includes(n) || n === d;
+    }).style("display", "block");
+}
+
+        
+    
     // Function to handle mouseover event on nodes
 function handleMouseOver(d, i) {
     // Highlight the hovered circle
@@ -68,11 +105,7 @@ function handleMouseOver(d, i) {
     .attr("stroke", "red")
     .attr("stroke-width", 4);
 
-    // Show text for links connected to the hovered node
-    link.filter(function(l) {
-        return (l.source === d || l.target === d) && l.source !== l.target;
-    }).select(".link-text")
-    .style("display", "block");
+
 
     // Highlight the connected circles and show their names
     var connectedNodes = link.filter(function(l) {
@@ -115,14 +148,21 @@ function handleMouseOut(d, i) {
     // Add event listeners to nodes
     circles.on("mouseover", handleMouseOver)
         .on("mouseout", handleMouseOut);
+        
 
     function ticked() {
-        // Ensure nodes stay within the bounds of the SVG container
-        node.attr("transform", function(d) {
-            d.x = Math.max(10, Math.min(width - 10, d.x));
-            d.y = Math.max(10, Math.min(height - 10, d.y));
-            return "translate(" + d.x + "," + d.y + ")";
-        });
+        // Calculate the boundaries of the container
+    const minX = 10;
+    const maxX = width - 10;
+    const minY = 10;
+    const maxY = height - 10;
+
+    // Ensure nodes stay within the bounds of the SVG container
+    node.attr("transform", function(d) {
+        d.x = Math.max(minX, Math.min(maxX, d.x));
+        d.y = Math.max(minY, Math.min(maxY, d.y));
+        return "translate(" + d.x + "," + d.y + ")";
+    });
 
         // Update link positions
         link.select(".link")
@@ -162,6 +202,9 @@ async function getJSON(film) {
         case "ep6":
             url = "starwars-interactions/starwars-episode-6-interactions-allCharacters.json";
             break;
+        case "ep7":
+            url = "starwars-interactions/starwars-episode-7-interactions-allCharacters.json";
+            break;
         case "full":
             url = "starwars-interactions/starwars-full-interactions-allCharacters.json";
             break;
@@ -177,9 +220,9 @@ async function getJSON(film) {
 
 // Main function
 async function run() {
-    const filmSelector = document.getElementById("film-selector");
+    const filmSelector = document.getElementById("film-selector-left");
     const characterSelector = document.getElementById("character-selector");
-    const graph = d3.select("#graph"); // Initialize or re-select the SVG element
+    const graph = d3.select("#leftgraph"); // Initialize or re-select the SVG element
 
     // Event listener for film selection change
     filmSelector.addEventListener("change", async () => {
@@ -201,11 +244,27 @@ async function run() {
     populateDropdown(characterSelector, characters); // Populate the character dropdown with names initially
     display(graph, defaultData.nodes, defaultData.links); // Display the default graph
 
+
+    characterSelector.addEventListener("change", async () => {
+        const selectedCharacter = characterSelector.value;
+    
+        // Reset the color of all circles to their original color
+        d3.selectAll("circle")
+            .attr("fill", function(d) { return d.colour; });
+    
+        // Change the color of the selected character's node to green
+        d3.selectAll("circle")
+            .filter(function(d) {return d.name === selectedCharacter; })
+            .attr("fill", "green")
+            .attr("opacity", 1);
+    
+    });
+    
     // Function to extract unique character names from nodes
     function extractCharacterNames(nodes) {
         const characterSet = new Set();
         nodes.forEach(node => {
-            characterSet.add(node.name); // Assuming each node has a "name" attribute
+            characterSet.add(node.name);
         });
         return Array.from(characterSet); // Convert set to array
     }

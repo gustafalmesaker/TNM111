@@ -1,0 +1,12 @@
+[] - filter till höger
+[] - visa delar av setet till höger
+[] - zoom??
+[] - minska längden på links
+[] - visa alla namn till höger, endast valda till vänster
+[] - allt (cirkel, namn etc.) ska kunna ses i containers och inte ligga utanför
+[] - Göra det stilrent
+
+
+
+
+
