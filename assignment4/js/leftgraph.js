@@ -26,6 +26,7 @@ function display(svg, nodes, links) {
         .attr("dx", 5) // Adjust position relative to the line
         .attr("dy", -5) // Adjust position relative to the line
         .attr("fill", "black") // Set the color of the text
+        .attr("stroke-width",2)
         .style("display","none");
 
     // Use a force simulation to position the nodes
@@ -54,6 +55,7 @@ function display(svg, nodes, links) {
         .attr("dx", 12) // Adjust position relative to the circle
         .attr("dy", 4) // Adjust position relative to the circle
         .attr("fill", "black") // Set the color of the text
+        .attr("stroke-width", 2)
         .style("display", "none"); // Hide text initially
         
 
@@ -93,8 +95,11 @@ function clickedNode(d, i) {
 
         
     
-    // Function to handle mouseover event on nodes
+// Function to handle mouseover event on nodes
 function handleMouseOver(d, i) {
+    // Reset the stroke width of all circles
+    d3.selectAll("circle").attr("stroke-width", 0);
+
     // Highlight the hovered circle
     d3.select(this).attr("stroke", "black").attr("stroke-width", 2);
 
@@ -104,8 +109,6 @@ function handleMouseOver(d, i) {
     }).select(".link")
     .attr("stroke", "red")
     .attr("stroke-width", 4);
-
-
 
     // Highlight the connected circles and show their names
     var connectedNodes = link.filter(function(l) {
@@ -120,6 +123,7 @@ function handleMouseOver(d, i) {
         return connectedNodes.includes(n) || n === d;
     }).style("display", "block");
 }
+
 
 // Function to handle mouseout event on nodes
 function handleMouseOut(d, i) {
@@ -220,7 +224,7 @@ async function getJSON(film) {
 
 // Main function
 async function run() {
-    const filmSelector = document.getElementById("film-selector-left");
+    const filmSelector = document.getElementById("film-selector");
     const characterSelector = document.getElementById("character-selector");
     const graph = d3.select("#leftgraph"); // Initialize or re-select the SVG element
 
@@ -248,17 +252,36 @@ async function run() {
     characterSelector.addEventListener("change", async () => {
         const selectedCharacter = characterSelector.value;
     
-        // Reset the color of all circles to their original color
+        // Reset the color and stroke of all circles and links to their original color
         d3.selectAll("circle")
-            .attr("fill", function(d) { return d.colour; });
+            .attr("fill", function(d) { return d.colour; })
+            .attr("stroke", "none");
     
-        // Change the color of the selected character's node to green
+        d3.selectAll(".link")
+            .attr("stroke", "blue")
+            .attr("stroke-width", 2);
+    
+        // Reset the stroke-width of all circles to zero
         d3.selectAll("circle")
-            .filter(function(d) {return d.name === selectedCharacter; })
+            .attr("stroke-width", 0);
+    
+        // Highlight the selected character's node and its links
+        d3.selectAll("circle")
+            .filter(function(d) { return d.name === selectedCharacter; })
             .attr("fill", "green")
-            .attr("opacity", 1);
+            .attr("stroke", "black")
+            .attr("stroke-width", 2);
     
+        d3.selectAll(".link")
+            .filter(function(l) { return l.source.name === selectedCharacter || l.target.name === selectedCharacter; })
+            .attr("stroke", "green")
+            .attr("stroke-width", 4);
     });
+    
+    
+
+    
+    
     
     // Function to extract unique character names from nodes
     function extractCharacterNames(nodes) {

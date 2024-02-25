@@ -213,7 +213,7 @@ async function getJSON(film) {
 
 // Main function
 async function run() {
-    const filmSelector = document.getElementById("film-selector-right");
+    const filmSelector = document.getElementById("film-selector");
     const characterSelector = document.getElementById("character-selector");
     const graph = d3.select("#rightgraph"); // Initialize or re-select the SVG element
 
