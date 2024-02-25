@@ -214,8 +214,6 @@ async function getJSON(film) {
     return data;
 }
 
-
-
 // Main function
 async function run() {
     const filmSelector = document.getElementById("film-selector");
@@ -224,9 +222,20 @@ async function run() {
     const graph = d3.select("#leftgraph"); // Initialize or re-select the SVG element
     const rightGraph = d3.select("#rightgraph");
 
+    // Load default data (Episode 1)
+    const defaultData = await getJSON("ep1");
+    const characters = extractCharacterNames(defaultData.nodes);
+    populateDropdown(characterSelector, characters); // Populate the character dropdown with names initially
+    display(graph, defaultData.nodes, defaultData.links); // Display the default graph
+    display(rightGraph, defaultData.nodes, defaultData.links); //Display an empty graph initially
+
+    let rightData = defaultData;
+
     filmSelector.addEventListener("change", async () => {
         const selectedFilm = filmSelector.value;
         const data = await getJSON(selectedFilm);
+        rightData = data;
+        updateRightGraph();
         const characters = extractCharacterNames(data.nodes);
         populateDropdown(characterSelector, characters);
         if (!graph.empty()) {
@@ -237,17 +246,29 @@ async function run() {
             console.error("SVG element not found!!");
         }
     });
+    
+    
+    function updateRightGraph(){
+        if (!rightGraph.empty()) { rightGraph.selectAll("*").remove(); }
+        display(rightGraph, rightData.nodes, rightData.links);
 
-
-    // Load default data (Episode 1)
-    const defaultData = await getJSON("ep1");
-    const characters = extractCharacterNames(defaultData.nodes);
-    populateDropdown(characterSelector, characters); // Populate the character dropdown with names initially
-    display(graph, defaultData.nodes, defaultData.links); // Display the default graph
-    display(rightGraph, defaultData.nodes, defaultData.links); //Display an empty graph initially
-    //let filteredNodes = defaultData.nodes.filter(node => node.value > 5);
-    //let filteredLinks = defaultData.links.filter(link => link.value > 4);
-    //display(rightGraph, filteredNodes, filteredLinks);
+        switch (filterOption.value) {
+            case "none":
+                break;
+            case "node-value":
+                console.log("node-value")
+                rightGraph.selectAll("circle")
+                .filter(function(d) {console.log(d);return d.value < 5})
+                .attr("display" , "none");
+                break;
+            case "link-value":
+                console.log("link-value");
+                rightGraph.selectAll("line")
+                .filter(function(l) {console.log(l);return l.value < 5})
+                .attr("display" , "none");
+                break;
+        }
+    }
 
     characterSelector.addEventListener("change", async () => {
         const selectedCharacter = characterSelector.value;
@@ -265,24 +286,7 @@ async function run() {
 
 
     filterOption.addEventListener("change", async () => {
-        if (!rightGraph.empty()) { rightGraph.selectAll("*").remove(); }
-        
-
-        switch (filterOption.value) {
-            case "none":
-                break;
-            case "node-value":
-                console.log("node-value");
-                rightGraph.selectAll("circle").
-                filter(function(d) {return d.value > 5;})
-                .attr("display", "none");
-                break;
-            case "link-value":
-                console.log("link-value");
-                
-                break;
-        }
-        //display(rightGraph, rightData.nodes, rightData.links);
+        updateRightGraph();
     });
 
     // Function to extract unique character names from nodes
