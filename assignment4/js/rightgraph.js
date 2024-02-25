@@ -13,7 +13,7 @@ function display(svg, nodes, links) {
     link.append("line")
         .attr("class", "link")
         .attr("stroke", "blue") // Set the stroke color of the links
-        .attr("stroke-width", 2)
+        .attr("stroke-width", 1)
         .attr("stroke-opacity", 0.4);
 
     // Append text for each link
@@ -30,9 +30,9 @@ function display(svg, nodes, links) {
 
     // Use a force simulation to position the nodes
     var simulation = d3.forceSimulation(nodes)
-        .force("charge", d3.forceManyBody().strength(-250))
-        .force("link", d3.forceLink(links).id(function(d) { return d.index; }).distance(10))
+        .force("charge", d3.forceManyBody().strength(-45))
         .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("link", d3.forceLink().links(links))
         .on("tick", ticked);
 
     // Display the nodes
@@ -44,7 +44,7 @@ function display(svg, nodes, links) {
 
     // Append circles for nodes
     var circles = node.append("circle")
-        .attr("r", 10)
+        .attr("r", 4)
         .attr("fill", function (d) { return d.colour; })
         .attr("fill-opacity", 0.5); // Set the opacity of the nodes
 
@@ -54,57 +54,58 @@ function display(svg, nodes, links) {
         .attr("dx", 12) // Adjust position relative to the circle
         .attr("dy", 4) // Adjust position relative to the circle
         .attr("fill", "black") // Set the color of the text
+        .attr("stroke-width", 1)
+        .attr("font-size", "8px")
         .style("display", "none"); // Hide text initially
 
-function clickedNode(d, i) {
-    // Highlight the clicked circle
-    d3.select(this).select("circle")
-        .attr("fill", "green")
-        .attr("stroke", "black")
+    function clickedNode(d, i) {
+        // Highlight the clicked circle
+        d3.select(this).select("circle")
+            .attr("fill", "green")
+            .attr("stroke", "black")
+            .attr("stroke-width", 1);
+
+        // Highlight the links connected to the clicked circle
+        link.filter(function(l) {
+            return l.source === d || l.target === d;
+        }).select(".link")
+        .attr("stroke", "green")
         .attr("stroke-width", 2);
 
-    // Highlight the links connected to the clicked circle
-    link.filter(function(l) {
-        return l.source === d || l.target === d;
-    }).select(".link")
-    .attr("stroke", "green")
-    .attr("stroke-width", 4);
+        // Show text for links connected to the clicked node
+        link.filter(function(l) {
+            return (l.source === d || l.target === d) && l.source !== l.target;
+        }).select(".link-text")
+        .attr("font-size", "8px")
+        .style("display", "block");
 
-    // Show text for links connected to the clicked node
-    link.filter(function(l) {
-        return (l.source === d || l.target === d) && l.source !== l.target;
-    }).select(".link-text")
-    .style("display", "block");
-
-    // Highlight the connected circles and show their names
-    var connectedNodes = link.filter(function(l) {
-        return l.source === d || l.target === d;
-    }).data().map(function(l) {
-        return l.source === d ? l.target : l.source;
-    });
-    circles.filter(function(c) {
-        return connectedNodes.includes(c) || c === d;
-    }).attr("fill", "green");
-    text.filter(function(n) {
-        return connectedNodes.includes(n) || n === d;
-    }).style("display", "block");
-}
+        // Highlight the connected circles and show their names
+        var connectedNodes = link.filter(function(l) {
+            return l.source === d || l.target === d;
+        }).data().map(function(l) {
+            return l.source === d ? l.target : l.source;
+        });
+        circles.filter(function(c) {
+            return connectedNodes.includes(c) || c === d;
+        }).attr("fill", "green");
+        text.filter(function(n) {
+            return connectedNodes.includes(n) || n === d;
+        }).style("display", "block");
+    }
 
         
     
     // Function to handle mouseover event on nodes
 function handleMouseOver(d, i) {
     // Highlight the hovered circle
-    d3.select(this).attr("stroke", "black").attr("stroke-width", 2);
+    d3.select(this).attr("stroke-width", 2);
 
     // Highlight the links connected to the hovered circle
     link.filter(function(l) {
         return l.source === d || l.target === d;
     }).select(".link")
     .attr("stroke", "red")
-    .attr("stroke-width", 4);
-
-
+    .attr("stroke-width", 2);
 
     // Highlight the connected circles and show their names
     var connectedNodes = link.filter(function(l) {
@@ -131,7 +132,7 @@ function handleMouseOut(d, i) {
     // Reset the stroke color of the links
     link.selectAll(".link")
     .attr("stroke", "blue")
-    .attr("stroke-width", 2);
+    .attr("stroke-width", 1);
     // Reset the fill color of connected circles
     circles.attr("fill", function(d) {
         return d.colour;
@@ -149,26 +150,32 @@ function handleMouseOut(d, i) {
         .on("mouseout", handleMouseOut);
         
 
-    function ticked() {
+        function ticked() {
+            // Calculate the boundaries of the container
+        const minX = 10;
+        const maxX = width - 10;
+        const minY = 10;
+        const maxY = height - 10;
+    
         // Ensure nodes stay within the bounds of the SVG container
         node.attr("transform", function(d) {
-            d.x = Math.max(10, Math.min(width - 10, d.x));
-            d.y = Math.max(10, Math.min(height - 10, d.y));
+            d.x = Math.max(minX, Math.min(maxX, d.x));
+            d.y = Math.max(minY, Math.min(maxY, d.y));
             return "translate(" + d.x + "," + d.y + ")";
         });
-
-        // Update link positions
-        link.select(".link")
-            .attr("x1", function(d) { return d.source.x; })
-            .attr("y1", function(d) { return d.source.y; })
-            .attr("x2", function(d) { return d.target.x; })
-            .attr("y2", function(d) { return d.target.y; });
-
-        // Update text positions
-        link.select(".link-text")
-            .attr("x", function(d) { return (d.source.x + d.target.x) / 2; })
-            .attr("y", function(d) { return (d.source.y + d.target.y) / 2; });
-    }
+    
+            // Update link positions
+            link.select(".link")
+                .attr("x1", function(d) { return d.source.x; })
+                .attr("y1", function(d) { return d.source.y; })
+                .attr("x2", function(d) { return d.target.x; })
+                .attr("y2", function(d) { return d.target.y; });
+    
+            // Update text positions
+            link.select(".link-text")
+                .attr("x", function(d) { return (d.source.x + d.target.x) / 2; })
+                .attr("y", function(d) { return (d.source.y + d.target.y) / 2; });
+        }
 
     return simulation;
 }
@@ -248,7 +255,7 @@ async function run() {
         // Change the color of the selected character's node to green
         d3.selectAll("circle")
             .filter(function(d) {return d.name === selectedCharacter; })
-            .attr("fill", "green")
+            .attr("fill", "red")
             .attr("opacity", 1);
     
     });

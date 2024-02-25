@@ -11,22 +11,66 @@
 
     <style>
         /* Custom CSS */
-        .custom-jumbotron {
-          background-color: #000000; /* Blue color */
-          color: rgb(216, 227, 16); /* Text color */
+
+        body {
+        background-color: #eac465; /* Dark gray background */
         }
+
+        
+        
+        .custom-jumbotron {
+            background-color: #000000; /* Blue color */
+            color: rgb(216, 227, 16); /* Text color */
+        }
+        /* Custom CSS */
+        /* Custom CSS */
+        .info-container {
+        background-color: rgba(247, 247, 247, 0.7); /* Semi-transparent white background */
+        padding: 10px; /* Padding for content */
+        margin: auto; /* Center horizontally */
+        margin-top: 10%; /* Adjust vertical position */
+        text-align: center; /* Center align content */
+        border: 2px solid #0d0c09; /* Yellow border */
+        border-radius: 10px; /* Rounded corners */
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Shadow effect */
+        width: 50%; /* Half the width of the column */
+        max-width: 150px; /* Maximum width for responsiveness */
+        height: 200px; /* Adjust height as needed */
+        }
+        .info-container h3 {
+            color: #050504; /* Yellow color for heading */
+            text-transform: uppercase; /* Uppercase text */
+            font-size: 20px; /* Larger font size */
+            margin-bottom: 5px; /* Spacing below heading */
+        }
+        .info-container p {
+            color: #0a0a09; /* White color for paragraph */
+            font-size: 14px; /* Font size for paragraph */
+        }
+
+        .dropdown-container {
+            border: 2px solid #090804; /* Yellow border */
+            border-radius: 10px; /* Rounded corners */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Shadow effect */
+            padding: 10px; /* Padding for content */
+            margin-bottom: 20px; /* Spacing between dropdowns */
+        }
+
+        
+
+
     </style>
 
     <title>Star Wars Interactions</title>
 </head>
 
 <body>
-    <div class="jumbotron custom-jumbotron text-center" >
+    <div class="jumbotron custom-jumbotron text-center">
         <h2>The Social Network of Star Wars</h2>
     </div>
     <div class="container span-12 text-center">
         <div class="row">
-            <div class="col-lg-4">
+            <div class="col-lg-4 dropdown-container">
                 <h3>Movies</h3>
                 <div class="dropdown">
                     <select id="film-selector">
@@ -41,30 +85,39 @@
                     </select>
                 </div>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-4 dropdown-container">
                 <h3>Characters</h3>
                 <div class="dropdown">
                     <select id="character-selector"></select>
+                </div>
+            </div>
+            <div class="col-lg-4 dropdown-container">
+                <h3>Filter</h3>
+                <div class="dropdown">
+                    <select id="filter-selector">
+                        <option value="none">Pick filter</option>
+                        <option value="link">Link value</option>
+                        <option value="node-value">Node Value</option>
+                    </select>
+                </div>
             </div>
         </div>
-        <div class="col-lg-4">
-            <h3>Filter</h3>
-            <div class="dropdown">
-                <select id="filter-selector">
-                    <option value="none">Pick filter</option>
-                    <option value="link">Link value</option>
-                    <option value="node-value">Node Value</option>
-                </select>
+
+        <div class="row">
+            <div class="col-lg-4"> 
+                <svg id="leftgraph" width="300" height="400"></svg>
+            </div>
+            <div class="col-lg-4 info-container"> <!-- Modified width to one-quarter -->
+                <h3>Character info</h3>
+                <p>Obidobikenobi.</p>
+            </div>
+            <div class="col-lg-4"> <!-- Modified width to one-quarter -->
+                <svg id="rightgraph" width="350" height="400"></svg>
             </div>
         </div>
     </div>
-
-    <div class="row">
-        <div class="col-lg-6"><svg id="leftgraph" width="500" height="500"></svg></div>
-        <div class="col-lg-6"><svg id="rightgraph" width="500" height="500"></svg></div>
-      </div>
-
 </body>
+
 <script type="text/javascript" src="libs/jquery/jquery.min.js"></script>
 <script type="text/javascript" src="libs/bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="libs/d3/d3.min.js"></script>

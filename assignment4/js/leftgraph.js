@@ -13,7 +13,7 @@ function display(svg, nodes, links) {
     link.append("line")
         .attr("class", "link")
         .attr("stroke", "blue") // Set the stroke color of the links
-        .attr("stroke-width", 2)
+        .attr("stroke-width", 1)
         .attr("stroke-opacity", 0.4);
 
     // Append text for each link
@@ -26,14 +26,13 @@ function display(svg, nodes, links) {
         .attr("dx", 5) // Adjust position relative to the line
         .attr("dy", -5) // Adjust position relative to the line
         .attr("fill", "black") // Set the color of the text
-        .attr("stroke-width",2)
         .style("display","none");
 
     // Use a force simulation to position the nodes
     var simulation = d3.forceSimulation(nodes)
-        .force("charge", d3.forceManyBody().strength(-100))
-        .force("link", d3.forceLink(links).id(function(d) { return d.index; }).distance(10))
+        .force("charge", d3.forceManyBody().strength(-45))
         .force("center", d3.forceCenter(width / 2, height / 2))
+        .force("link", d3.forceLink().links(links))
         .on("tick", ticked);
 
     // Display the nodes
@@ -45,7 +44,7 @@ function display(svg, nodes, links) {
 
     // Append circles for nodes
     var circles = node.append("circle")
-        .attr("r", 10)
+        .attr("r", 4)
         .attr("fill", function (d) { return d.colour; })
         .attr("fill-opacity", 0.5); // Set the opacity of the nodes
 
@@ -55,7 +54,8 @@ function display(svg, nodes, links) {
         .attr("dx", 12) // Adjust position relative to the circle
         .attr("dy", 4) // Adjust position relative to the circle
         .attr("fill", "black") // Set the color of the text
-        .attr("stroke-width", 2)
+        .attr("stroke-width", 1)
+        .attr("font-size", "8px")
         .style("display", "none"); // Hide text initially
         
 
@@ -64,19 +64,20 @@ function clickedNode(d, i) {
     d3.select(this).select("circle")
         .attr("fill", "green")
         .attr("stroke", "black")
-        .attr("stroke-width", 2);
+        .attr("stroke-width", 1);
 
     // Highlight the links connected to the clicked circle
     link.filter(function(l) {
         return l.source === d || l.target === d;
     }).select(".link")
     .attr("stroke", "green")
-    .attr("stroke-width", 4);
+    .attr("stroke-width", 2);
 
     // Show text for links connected to the clicked node
     link.filter(function(l) {
         return (l.source === d || l.target === d) && l.source !== l.target;
     }).select(".link-text")
+    .attr("font-size", "8px")
     .style("display", "block");
 
     // Highlight the connected circles and show their names
@@ -108,7 +109,7 @@ function handleMouseOver(d, i) {
         return l.source === d || l.target === d;
     }).select(".link")
     .attr("stroke", "red")
-    .attr("stroke-width", 4);
+    .attr("stroke-width", 2);
 
     // Highlight the connected circles and show their names
     var connectedNodes = link.filter(function(l) {
@@ -136,7 +137,7 @@ function handleMouseOut(d, i) {
     // Reset the stroke color of the links
     link.selectAll(".link")
     .attr("stroke", "blue")
-    .attr("stroke-width", 2);
+    .attr("stroke-width", 1);
     // Reset the fill color of connected circles
     circles.attr("fill", function(d) {
         return d.colour;
@@ -249,37 +250,28 @@ async function run() {
     display(graph, defaultData.nodes, defaultData.links); // Display the default graph
 
 
-    characterSelector.addEventListener("change", async () => {
-        const selectedCharacter = characterSelector.value;
-    
-        // Reset the color and stroke of all circles and links to their original color
+    function highlightSelectedCharacter(selectedCharacter) {
+        // Reset the color of all circles and hide all names
         d3.selectAll("circle")
-            .attr("fill", function(d) { return d.colour; })
-            .attr("stroke", "none");
+            .attr("fill", function(d) { return d.colour; });
+        d3.selectAll("text")
+            .style("display", "none");
     
-        d3.selectAll(".link")
-            .attr("stroke", "blue")
-            .attr("stroke-width", 2);
-    
-        // Reset the stroke-width of all circles to zero
-        d3.selectAll("circle")
-            .attr("stroke-width", 0);
-    
-        // Highlight the selected character's node and its links
+        // Change the color of the selected character's node to red
         d3.selectAll("circle")
             .filter(function(d) { return d.name === selectedCharacter; })
-            .attr("fill", "green")
-            .attr("stroke", "black")
-            .attr("stroke-width", 2);
+            .attr("fill", "red");
     
-        d3.selectAll(".link")
-            .filter(function(l) { return l.source.name === selectedCharacter || l.target.name === selectedCharacter; })
-            .attr("stroke", "green")
-            .attr("stroke-width", 4);
+        // Show the name of the selected character
+        d3.selectAll("text")
+            .filter(function(d) { return d.name === selectedCharacter; })
+            .style("display", "block");
+    }
+    
+    characterSelector.addEventListener("change", async () => {
+        const selectedCharacter = characterSelector.value;
+        highlightSelectedCharacter(selectedCharacter);
     });
-    
-    
-
     
     
     
