@@ -13,24 +13,24 @@
         /* Custom CSS */
 
         body {
-        background-color: #eac465; /* Dark gray background */
+        background-color: #fefefc; /* Dark gray background */
         }
 
         
         
         .custom-jumbotron {
             background-color: #000000; /* Blue color */
-            color: rgb(216, 227, 16); /* Text color */
+            color: #FFFF00; /* Text color */
         }
         /* Custom CSS */
         /* Custom CSS */
         .info-container {
-        background-color: rgba(247, 247, 247, 0.7); /* Semi-transparent white background */
+        background-color: #000000;  /* Semi-transparent white background */
         padding: 10px; /* Padding for content */
         margin: auto; /* Center horizontally */
         margin-top: 10%; /* Adjust vertical position */
         text-align: center; /* Center align content */
-        border: 2px solid #0d0c09; /* Yellow border */
+        border: 2px solid #FFFF00; /* Yellow border */
         border-radius: 10px; /* Rounded corners */
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Shadow effect */
         width: 50%; /* Half the width of the column */
@@ -38,18 +38,20 @@
         height: 200px; /* Adjust height as needed */
         }
         .info-container h3 {
-            color: #050504; /* Yellow color for heading */
+            color: #FFFF00; /* Yellow color for heading */
             text-transform: uppercase; /* Uppercase text */
             font-size: 20px; /* Larger font size */
             margin-bottom: 5px; /* Spacing below heading */
         }
         .info-container p {
-            color: #0a0a09; /* White color for paragraph */
+            color: #FFFF00; /* White color for paragraph */
             font-size: 14px; /* Font size for paragraph */
         }
 
         .dropdown-container {
-            border: 2px solid #090804; /* Yellow border */
+            background-color: #000000; /* Black background */
+            color: #FFFF00; /* Yellow text */
+            border: 2px solid #FFFF00; /* Yellow border */
             border-radius: 10px; /* Rounded corners */
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Shadow effect */
             padding: 10px; /* Padding for content */
@@ -104,15 +106,16 @@
         </div>
 
         <div class="row">
-            <div class="col-lg-4"> 
-                <svg id="leftgraph" width="300" height="400"></svg>
+            <div class="col-lg-5 text-align center"> 
+                <svg id="leftgraph" width="500" height="500"></svg>
             </div>
-            <div class="col-lg-4 info-container"> <!-- Modified width to one-quarter -->
-                <h3>Character info</h3>
-                <p>Obidobikenobi.</p>
+            <div class="col-lg-2 info-container">
+                <h3>Character Info</h3>
+                <p><strong>Character:</strong><span id="info-selected-character"></span></p>
+                <p><strong>Number of scenes:</strong></p> <g class="info-number-of-scenes"></g>
             </div>
-            <div class="col-lg-4"> <!-- Modified width to one-quarter -->
-                <svg id="rightgraph" width="350" height="400"></svg>
+            <div class="col-lg-5 text-align center"> 
+                <svg id="rightgraph" width="500" height="500"></svg>
             </div>
         </div>
     </div>
