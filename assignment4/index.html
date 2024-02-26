@@ -13,54 +13,77 @@
         /* Custom CSS */
 
         body {
-        background-color: #fefefc; /* Dark gray background */
+            background-color: #1c1c1c;
+            /* Dark gray background */
+        }
+        .custom-jumbotron {
+            background-color: #000000;
+            /* Blue color */
+            color: #FFFF00;
+            /* Text color */
         }
 
-        
-        
-        .custom-jumbotron {
-            background-color: #000000; /* Blue color */
-            color: #FFFF00; /* Text color */
-        }
         /* Custom CSS */
         /* Custom CSS */
         .info-container {
-        background-color: #000000;  /* Semi-transparent white background */
-        padding: 10px; /* Padding for content */
-        margin: auto; /* Center horizontally */
-        margin-top: 10%; /* Adjust vertical position */
-        text-align: center; /* Center align content */
-        border: 2px solid #FFFF00; /* Yellow border */
-        border-radius: 10px; /* Rounded corners */
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Shadow effect */
-        width: 50%; /* Half the width of the column */
-        max-width: 150px; /* Maximum width for responsiveness */
-        height: 200px; /* Adjust height as needed */
+            background-color: #000000;
+            /* Semi-transparent white background */
+            padding: 10px;
+            /* Padding for content */
+            margin: auto;
+            /* Center horizontally */
+            margin-top: 10%;
+            /* Adjust vertical position */
+            text-align: center;
+            /* Center align content */
+            border: 2px solid #FFFF00;
+            /* Yellow border */
+            border-radius: 10px;
+            /* Rounded corners */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            /* Shadow effect */
+            width: 50%;
+            /* Half the width of the column */
+            max-width: 150px;
+            /* Maximum width for responsiveness */
+            height: 200px;
+            /* Adjust height as needed */
         }
+
         .info-container h3 {
-            color: #FFFF00; /* Yellow color for heading */
-            text-transform: uppercase; /* Uppercase text */
-            font-size: 20px; /* Larger font size */
-            margin-bottom: 5px; /* Spacing below heading */
+            color: #FFFF00;
+            /* Yellow color for heading */
+            text-transform: uppercase;
+            /* Uppercase text */
+            font-size: 20px;
+            /* Larger font size */
+            margin-bottom: 5px;
+            /* Spacing below heading */
         }
+
         .info-container p {
-            color: #FFFF00; /* White color for paragraph */
-            font-size: 14px; /* Font size for paragraph */
+            color: #FFFF00;
+            /* White color for paragraph */
+            font-size: 14px;
+            /* Font size for paragraph */
         }
 
         .dropdown-container {
-            background-color: #000000; /* Black background */
-            color: #FFFF00; /* Yellow text */
-            border: 2px solid #FFFF00; /* Yellow border */
-            border-radius: 10px; /* Rounded corners */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Shadow effect */
-            padding: 10px; /* Padding for content */
-            margin-bottom: 20px; /* Spacing between dropdowns */
+            background-color: #000000;
+            /* Black background */
+            color: #FFFF00;
+            /* Yellow text */
+            border: 2px solid #FFFF00;
+            /* Yellow border */
+            border-radius: 10px;
+            /* Rounded corners */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            /* Shadow effect */
+            padding: 10px;
+            /* Padding for content */
+            margin-bottom: 20px;
+            /* Spacing between dropdowns */
         }
-
-        
-
-
     </style>
 
     <title>Star Wars Interactions</title>
@@ -98,27 +121,38 @@
                 <div class="dropdown">
                     <select id="filter-selector">
                         <option value="none">Pick filter</option>
-                        <option value="link">Link value</option>
+                        <option value="link-value">Link value</option>
                         <option value="node-value">Node Value</option>
                     </select>
+                    <div class="col text-center">
+                        <div class="row">
+                            <label for="upper" class="form-label">Upper Limit: </label>
+                            <input type="range" class="form-range" id="upper">
+                            <p><span id="upper-value"></span></p>
+                        </div>
+                        <div class="row">
+                            <label for="lower" class="form-label">Lower Limit: </label>
+                            <input type="range" class="form-range" id="lower">
+                            <p><span id="lower-value"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-5 text-align center">
+                    <svg id="leftgraph" width="500" height="500"></svg>
+                </div>
+                <div class="col-lg-2 info-container">
+                    <h3>Character Info</h3>
+                    <p><strong>Character:</strong><span id="info-selected-character"></span></p>
+                    <p><strong>Number of scenes:</strong><span id="selected-character-scenes"></span></p>
+                </div>
+                <div class="col-lg-5 text-align center">
+                    <svg id="rightgraph" width="500" height="500"></svg>
                 </div>
             </div>
         </div>
-
-        <div class="row">
-            <div class="col-lg-5 text-align center"> 
-                <svg id="leftgraph" width="500" height="500"></svg>
-            </div>
-            <div class="col-lg-2 info-container">
-                <h3>Character Info</h3>
-                <p><strong>Character:</strong><span id="info-selected-character"></span></p>
-                <p><strong>Number of scenes:</strong></p>
-            </div>
-            <div class="col-lg-5 text-align center"> 
-                <svg id="rightgraph" width="500" height="500"></svg>
-            </div>
-        </div>
-    </div>
 </body>
 
 <script type="text/javascript" src="libs/jquery/jquery.min.js"></script>
@@ -130,7 +164,6 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <!-- Link to your main.js file -->
-<script src="js/leftgraph.js"></script>
-<script src="js/rightgraph.js"></script>
+<script src="js/main.js"></script>
 
 </html>
