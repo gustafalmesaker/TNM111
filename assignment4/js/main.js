@@ -64,6 +64,7 @@ function display(svg, nodes, links) {
             .attr("stroke", "black")
             .attr("stroke-width", 2);
 
+
         // Highlight the links connected to the clicked circle
         link.filter(function (l) {
             return l.source === d || l.target === d;
@@ -116,7 +117,6 @@ function display(svg, nodes, links) {
         text.filter(function (n) {
             return connectedNodes.includes(n) || n === d;
         }).style("display", "block");
-
     }
 
     // Function to handle mouseout event on nodes
@@ -215,18 +215,66 @@ async function getJSON(film) {
 }
 
 
+function findMax(data) {
+    let maxPropertyValue = -Infinity; // Start with a very low value for maximum
+    data.nodes.forEach(node => {
+        // Check if the node has a numeric value property
+        if (typeof node.value === 'number') {
+            // Update the maximum value if necessary
+            if (node.value > maxPropertyValue) {
+                maxPropertyValue = node.value;
+            }
+        }
+    });
+    return maxPropertyValue;
+}
+
+function findMin(data) {
+    let minPropertyValue = Infinity; // Start with a very high value for minimum
+    data.nodes.forEach(node => {
+        // Check if the node has a numeric value property
+        if (typeof node.value === 'number') {
+            // Update the minimum value if necessary
+            if (node.value < minPropertyValue) {
+                minPropertyValue = node.value;
+            }
+        }
+    });
+    return minPropertyValue;
+}
+
 
 // Main function
 async function run() {
     const filmSelector = document.getElementById("film-selector");
     const characterSelector = document.getElementById("character-selector");
     const filterOption = document.getElementById("filter-selector");
+    const sliderUpper = document.getElementById("upper");
+    const sliderLower = document.getElementById("lower");
     const graph = d3.select("#leftgraph"); // Initialize or re-select the SVG element
     const rightGraph = d3.select("#rightgraph");
 
+    // Load default data (Episode 1)
+    const defaultData = await getJSON("ep1");
+    let data = defaultData;
+    const characters = extractCharacterNames(defaultData.nodes);
+    populateDropdown(characterSelector, characters); // Populate the character dropdown with names initially
+
+    updateSliders(data);
+
+    display(graph, defaultData.nodes, defaultData.links); // Display the default graph
+    display(rightGraph, defaultData.nodes, defaultData.links); //Display an empty graph initially
+
+    let rightData = defaultData;
+    
+
+
     filmSelector.addEventListener("change", async () => {
         const selectedFilm = filmSelector.value;
-        const data = await getJSON(selectedFilm);
+        data = await getJSON(selectedFilm);
+        rightData = data;
+        updateSliders(data)
+        updateRightGraph();
         const characters = extractCharacterNames(data.nodes);
         populateDropdown(characterSelector, characters);
         if (!graph.empty()) {
@@ -239,15 +287,67 @@ async function run() {
     });
 
 
-    // Load default data (Episode 1)
-    const defaultData = await getJSON("ep1");
-    const characters = extractCharacterNames(defaultData.nodes);
-    populateDropdown(characterSelector, characters); // Populate the character dropdown with names initially
-    display(graph, defaultData.nodes, defaultData.links); // Display the default graph
-    display(rightGraph, defaultData.nodes, defaultData.links); //Display an empty graph initially
-    //let filteredNodes = defaultData.nodes.filter(node => node.value > 5);
-    //let filteredLinks = defaultData.links.filter(link => link.value > 4);
-    //display(rightGraph, filteredNodes, filteredLinks);
+    function updateRightGraph() {
+        if (!rightGraph.empty()) { rightGraph.selectAll("*").remove(); }
+        display(rightGraph, rightData.nodes, rightData.links);
+
+        let lowerValue = document.getElementById("lower").value;
+        let upperValue = document.getElementById("upper").value;
+        switch (filterOption.value) {
+            case "none":
+                break;
+            case "node-value":
+                console.log("node-value")
+                rightGraph.selectAll("circle")
+                    .filter(function (d) { return d.value > upperValue || d.value < lowerValue })
+                    .attr("display", "none");
+                break;
+            case "link-value":
+                console.log("link-value");
+                rightGraph.selectAll("line")
+                    .filter(function (l) { return l.value < lowerValue || l.value > upperValue })
+                    .attr("display", "none");
+                break;
+        }
+    }
+
+
+    function updateSliders(data) {
+        if (filterOption.value === "none") {
+            document.getElementById("upper").style.display = "none";
+            document.querySelector('label[for="upper"]').style.display = "none";
+            document.getElementById("lower").style.display = "none";
+            document.querySelector('label[for="lower"]').style.display = "none";
+        } 
+        else {
+            document.getElementById("upper").style.display = "grid"; 
+            document.querySelector('label[for="upper"]').style.display = "grid";
+            document.getElementById("lower").style.display = "grid"; 
+            document.querySelector('label[for="lower"]').style.display = "grid"; 
+        }
+
+        let max = findMax(data);
+        let min = findMin(data);
+
+        document.getElementById("upper").setAttribute("max", max);
+        document.getElementById("lower").setAttribute("min", min);
+        document.getElementById("upper").setAttribute("min", min);
+        document.getElementById("lower").setAttribute("max", max);
+        document.getElementById("upper").value = max;
+        document.getElementById("lower").value = min;
+    }
+
+    sliderUpper.addEventListener("change", async () => {
+        updateRightGraph();
+        document.getElementById("lower-value").value = document.getElementById("lower").value;
+        document.getElementById("upper-value").value = document.getElementById("upper").value;
+    });
+
+    sliderLower.addEventListener("change", async () => {
+        updateRightGraph();
+        document.getElementById("lower-value").value = document.getElementById("lower").value;
+        document.getElementById("upper-value").value = document.getElementById("upper").value;
+    });
 
     characterSelector.addEventListener("change", async () => {
         const selectedCharacter = characterSelector.value;
@@ -265,24 +365,8 @@ async function run() {
 
 
     filterOption.addEventListener("change", async () => {
-        if (!rightGraph.empty()) { rightGraph.selectAll("*").remove(); }
-        
-
-        switch (filterOption.value) {
-            case "none":
-                break;
-            case "node-value":
-                console.log("node-value");
-                rightGraph.selectAll("circle").
-                filter(function(d) {return d.value > 5;})
-                .attr("display", "none");
-                break;
-            case "link-value":
-                console.log("link-value");
-                
-                break;
-        }
-        //display(rightGraph, rightData.nodes, rightData.links);
+        updateRightGraph();
+        updateSliders(data);
     });
 
     // Function to extract unique character names from nodes
@@ -293,6 +377,8 @@ async function run() {
         });
         return Array.from(characterSet); // Convert set to array
     }
+
+
 
     // Function to populate dropdown with character names
     function populateDropdown(dropdown, characters) {
@@ -312,7 +398,6 @@ async function run() {
             dropdown.add(option);
         });
     }
-
 }
 
 run();
