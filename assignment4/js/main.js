@@ -39,8 +39,8 @@ function display(svg, nodes, links) {
 
     // Use a force simulation to position the nodes
     var simulation = d3.forceSimulation(nodes)
-        .force("charge", d3.forceManyBody().strength(-175))
-        .force("link", d3.forceLink(links).id(function (d) { return d.index; }).distance(100))
+        .force("charge", d3.forceManyBody().strength(-125))
+        .force("link", d3.forceLink(links).id(function (d) { return d.index; }).distance(75))
         .force("center", d3.forceCenter(width / 2, height / 2))
         .on("tick", ticked);
 
@@ -148,6 +148,11 @@ function display(svg, nodes, links) {
         // Highlight the hovered circle
         d3.select(this).attr("stroke-width", 2);
 
+        //display text when left graph is hovered
+        d3.selectAll(".node text")
+            .filter(function(n){return n.name === d.name})
+            .style("display", "block");
+
         // Highlight the links connected to the hovered circle
         link.filter(function (l) {
             return l.source === d || l.target === d;
@@ -185,6 +190,16 @@ function display(svg, nodes, links) {
         d3.select(this).attr("fill", function (d) {
             return d.colour;
         });
+
+        d3.selectAll(".node text")
+            .filter(function(n){return n.name === d.name})
+            .style("display", "none");
+        
+        rightGraph.selectAll(".node")
+            .attr("fill", function (d) {
+                return d.colour;
+            });;
+
         // Reset the stroke color of the links
         link.selectAll(".link")
             .attr("stroke", function (l) {
@@ -220,7 +235,7 @@ function display(svg, nodes, links) {
 
         // Highlight the corresponding circle in the right graph
         rightCircle.select("circle")
-            .attr("fill", "green", function (d) {
+            .attr("fill", function (d) {
                 return d.colour;
             });
     }
@@ -232,10 +247,10 @@ function display(svg, nodes, links) {
 
     function ticked() {
         // Calculate the boundaries of the container
-        const minX = 10;
-        const maxX = width - 10;
-        const minY = 10;
-        const maxY = height - 10;
+        const minX = 20;
+        const maxX = width - 20;
+        const minY = 20;
+        const maxY = height - 20;
 
         // Ensure nodes stay within the bounds of the SVG container
         node.attr("transform", function (d) {
@@ -384,6 +399,10 @@ async function run() {
         updateRightGraph();
         const characters = extractCharacterNames(data.nodes);
         populateDropdown(characterSelector, characters);
+
+        document.getElementById("info-selected-character").textContent = "";
+        document.getElementById("selected-character-scenes").textContent = "";
+
         //characterValues = extractCharacterValues(data.nodes);
         if (!graph.empty()) {
             graph.selectAll("*").remove();
@@ -421,12 +440,16 @@ async function run() {
             document.querySelector('label[for="upper"]').style.display = "none";
             document.getElementById("lower").style.display = "none";
             document.querySelector('label[for="lower"]').style.display = "none";
+            document.getElementById("upper-value").style.display = "none"
+            document.getElementById("lower-value").style.display = "none"
         }
         else {
-            document.getElementById("upper").style.display = "grid";
-            document.querySelector('label[for="upper"]').style.display = "grid";
-            document.getElementById("lower").style.display = "grid";
-            document.querySelector('label[for="lower"]').style.display = "grid";
+            document.getElementById("upper").style.display = "flex";
+            document.querySelector('label[for="upper"]').style.display = "flex";
+            document.getElementById("lower").style.display = "flex";
+            document.querySelector('label[for="lower"]').style.display = "flex";
+            document.getElementById("upper-value").style.display = "flex"
+            document.getElementById("lower-value").style.display = "flex"
         }
 
         let max = findMax(data);
@@ -443,18 +466,19 @@ async function run() {
         document.getElementById("lower").setAttribute("max", max);
         document.getElementById("upper").value = max;
         document.getElementById("lower").value = min;
+
+        document.getElementById("upper-value").textContent = document.getElementById("upper").value;
+        document.getElementById("lower-value").textContent = document.getElementById("lower").value;
     }
 
     sliderUpper.addEventListener("change", async () => {
-        document.getElementById("lower-value").value = document.getElementById("lower").value;
-        document.getElementById("upper-value").value = document.getElementById("upper").value;
+        document.getElementById("upper-value").textContent = document.getElementById("upper").value;
         updateRightGraph();
     });
 
     sliderLower.addEventListener("change", async () => {
-        document.getElementById("lower-value").value = document.getElementById("lower").value;
-        document.getElementById("upper-value").value = document.getElementById("upper").value;
         updateRightGraph();
+        document.getElementById("lower-value").textContent = document.getElementById("lower").value;
     });
 
     characterSelector.addEventListener("change", async () => {
@@ -471,16 +495,19 @@ async function run() {
             .attr("fill", "green")
             .attr("opacity", 1);
         d3.selectAll(".node")
-            .filter(function (d) { 
-                if (d.name === selectedCharacter) 
-                {   console.log(d);
-                    selectedCharacterScenes = d.value; }; 
-                return d.name === selectedCharacter })
+            .filter(function (d) {
+                if (d.name === selectedCharacter) {
+                    console.log(d);
+                    selectedCharacterScenes = d.value;
+                };
+                return d.name === selectedCharacter
+            })
             .style("display", "block");
 
         document.getElementById("info-selected-character").textContent = selectedCharacter;
         document.getElementById("selected-character-scenes").textContent = selectedCharacterScenes;
     });
+
 
 
     filterOption.addEventListener("change", async () => {
@@ -535,9 +562,6 @@ async function run() {
         });
         return Array.from(characterSet); // Convert set to array
     }
-
-
-
     // Function to populate dropdown with character names
     function populateDropdown(dropdown, characters) {
         // Clear existing options
@@ -557,5 +581,4 @@ async function run() {
         });
     }
 }
-
 run();
